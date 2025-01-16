@@ -30,7 +30,7 @@ export const messagesRouter = router({
 
       const openaiResponse = await getOpenAIResponse(content, history)
 
-      if (!openaiResponse) {
+      if (!openaiResponse.content) {
         throw new Error('Failed to get OpenAI response')
       }
 
