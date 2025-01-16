@@ -1,7 +1,7 @@
-import { z } from "zod";
-import { getOpenAIResponse } from "../api/openai";
-import { prisma } from "../db";
-import { protectedProcedure, router } from "../trpc";
+import { z } from 'zod'
+import { getOpenAIResponse } from '../api/openai'
+import { prisma } from '../db'
+import { protectedProcedure, router } from '../trpc'
 
 export const messagesRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -9,8 +9,8 @@ export const messagesRouter = router({
       where: {
         userId: ctx.auth.userId,
       },
-      orderBy: { createdAt: "asc" },
-    });
+      orderBy: { createdAt: 'asc' },
+    })
   }),
 
   sendMessage: protectedProcedure
@@ -20,15 +20,15 @@ export const messagesRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { content } = input;
+      const { content } = input
 
       const history = await prisma.message.findMany({
         where: {
           userId: ctx.auth.userId,
         },
-      });
+      })
 
-      const openaiResponse = await getOpenAIResponse(content, history);
+      const openaiResponse = await getOpenAIResponse(content, history)
 
       return prisma.message.createMany({
         data: [
@@ -42,6 +42,6 @@ export const messagesRouter = router({
             userId: ctx.auth.userId,
           },
         ],
-      });
+      })
     }),
-});
+})
