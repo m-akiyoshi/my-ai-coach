@@ -22,7 +22,13 @@ export const messagesRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { content } = input;
 
-      const openaiResponse = await getOpenAIResponse(content);
+      const history = await prisma.message.findMany({
+        where: {
+          userId: ctx.auth.userId,
+        },
+      });
+
+      const openaiResponse = await getOpenAIResponse(content, history);
 
       return prisma.message.createMany({
         data: [
