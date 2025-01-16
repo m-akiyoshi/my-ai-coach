@@ -30,6 +30,10 @@ export const messagesRouter = router({
 
       const openaiResponse = await getOpenAIResponse(content, history)
 
+      if (!openaiResponse) {
+        throw new Error('Failed to get OpenAI response')
+      }
+
       return prisma.message.createMany({
         data: [
           {
