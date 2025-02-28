@@ -1,7 +1,7 @@
 'use client'
 import { useRouter } from 'next/navigation'
 
-import { JournalEntry } from '@prisma/client'
+import type { JournalEntry } from '@prisma/client'
 import { useState } from 'react'
 import { trpc } from '../utils/trpc'
 
