@@ -9,7 +9,11 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        quicksand: ['Quicksand', 'sans-serif'],
+      },
       colors: {
+        heading: '#736666',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {

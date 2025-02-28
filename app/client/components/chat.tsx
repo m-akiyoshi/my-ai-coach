@@ -43,9 +43,6 @@ const Chat = () => {
   }
 
   if (isLoading) return <div>Loading messages...</div>
-
-  console.log(messages)
-
   return (
     <div className="mx-auto border rounded-md">
       <ScrollArea>

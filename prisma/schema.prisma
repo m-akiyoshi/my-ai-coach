@@ -13,11 +13,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Message {
   id        String   @id @default(cuid())
   content   String
   userId    String
   isChatbot Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model JournalEntry {
+  id        String   @id @default(uuid())
+  userId    String
+  isChatbot Boolean  @default(false)
+  content   String
+  emotion   String?
+  createdAt DateTime @default(now())
+}
+
+model ChatMessage {
+  id             String   @id @default(uuid())
+  journalEntryId String
+  content        String
+  isChatbot      Boolean  @default(false)
+  createdAt      DateTime @default(now())
 }
