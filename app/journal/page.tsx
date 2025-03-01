@@ -8,7 +8,7 @@ import { trpc } from '../utils/trpc'
 const emotions = ['Happy', 'Excited', 'Anxious', 'Tired', 'Overwhelmed', 'Irritated', 'Motivated', 'Sad']
 
 export default function JournalEntry() {
-  const [text, setText] = useState('')
+  const [content, setContent] = useState('')
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([])
   const utils = trpc.useContext()
   const router = useRouter()
@@ -17,7 +17,7 @@ export default function JournalEntry() {
   const createJournalEntry = trpc.journal.createJournalEntry.useMutation({
     onSuccess: (data) => {
       utils.journal.getJournalEntries.invalidate()
-      setText('')
+      setContent('')
       setSelectedEmotions([])
       router.push(`/journal/${data.id}`)
     },
@@ -25,8 +25,8 @@ export default function JournalEntry() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!text.trim() || selectedEmotions.length === 0) return
-    createJournalEntry.mutate({ text, emotion: selectedEmotions.join(', ') })
+    if (!content.trim() || selectedEmotions.length === 0) return
+    createJournalEntry.mutate({ content, emotion: selectedEmotions.join(', ') })
   }
 
   const toggleEmotion = (emo: string) => {
@@ -41,8 +41,8 @@ export default function JournalEntry() {
           <textarea
             className="w-full p-3 border rounded-md bg-white text-gray-700"
             placeholder="Today was a tough day, I felt..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             rows={5}
           />
           <div className="grid grid-cols-4 gap-2">

@@ -1,3 +1,4 @@
+import { ChatCompletionMessageParam } from 'openai/resources/index.mjs'
 import { z } from 'zod'
 import { getOpenAIResponse } from '../api/openai'
 import { prisma } from '../db'
@@ -8,7 +9,7 @@ const JOURNAL_ENTRY_CONTEXT =
 
 export const journalRouter = router({
   createJournalEntry: protectedProcedure
-    .input(z.object({ text: z.string(), emotion: z.string() }))
+    .input(z.object({ content: z.string(), emotion: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const history = await prisma.journalEntry.findMany({
         where: {
@@ -16,21 +17,22 @@ export const journalRouter = router({
         },
       })
 
-      console.log(history)
+      const historyMessages: ChatCompletionMessageParam[] = history.map((message) => ({
+        role: message.isChatbot ? 'assistant' : 'user',
+        content: message.content,
+      }))
 
       const aiResponse = await getOpenAIResponse({
-        content: `Journal entry: ${input.text} \nEmotion: ${input.emotion}`,
-        history,
+        content: `Journal entry: ${input.content} \nEmotion: ${input.emotion}`,
+        history: historyMessages,
         context: JOURNAL_ENTRY_CONTEXT,
       })
-
-      console.log(aiResponse)
 
       const responseText = aiResponse.content || "You're doing great! Let me know if you need to talk about something."
 
       const journalEntry = await prisma.journalEntry.create({
         data: {
-          content: input.text,
+          content: input.content,
           userId: ctx.auth.userId,
         },
       })
@@ -64,7 +66,7 @@ export const journalRouter = router({
   }),
 
   sendMessage: protectedProcedure
-    .input(z.object({ journalEntryId: z.string(), text: z.string() }))
+    .input(z.object({ journalEntryId: z.string(), content: z.string() }))
     .mutation(async ({ input }) => {
       const journalEntry = await prisma.journalEntry.findUnique({
         where: {
@@ -78,16 +80,19 @@ export const journalRouter = router({
         },
       })
 
+      if (!journalEntry || !chatMessages) {
+        throw new Error('Journal entry or chat messages not found')
+      }
+
       const history = chatMessages.map((message) => ({
         content: message.content,
-        role: message.isChatbot ? 'assistant' : 'user',
+        role: message.isChatbot ? ('assistant' as const) : ('user' as const),
       }))
 
-      const chatHistory = [...history, { content: journalEntry.content, role: 'user' }]
+      const chatHistory = [{ content: journalEntry?.content, role: 'user' as const }, ...history]
 
-      // Generate AI reply
       const aiResponse = await getOpenAIResponse({
-        content: input.text,
+        content: input.content,
         history: chatHistory,
         context: JOURNAL_ENTRY_CONTEXT,
       })
@@ -98,7 +103,7 @@ export const journalRouter = router({
         data: [
           {
             journalEntryId: input.journalEntryId,
-            content: input.text,
+            content: input.content,
             isChatbot: false,
           },
           {

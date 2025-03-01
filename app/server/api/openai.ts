@@ -1,4 +1,3 @@
-import { Message } from '@prisma/client'
 import OpenAI from 'openai'
 import { type ChatCompletionMessageParam } from 'openai/resources/chat/completions'
 import { config } from '../config'
@@ -11,18 +10,13 @@ export const getOpenAIResponse = async ({
   context,
 }: {
   content: string
-  history: Message[]
+  history: ChatCompletionMessageParam[]
   context: string
 }) => {
-  const historyMessages: ChatCompletionMessageParam[] = history.map((message) => ({
-    role: message.isChatbot ? 'assistant' : 'user',
-    content: message.content,
-  }))
-
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [
-      ...historyMessages,
+      ...history,
       {
         role: 'system',
         content: context,
