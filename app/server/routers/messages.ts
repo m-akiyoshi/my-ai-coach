@@ -1,3 +1,4 @@
+import { ChatCompletionMessageParam } from 'openai/resources/index.mjs'
 import { z } from 'zod'
 import { getOpenAIResponse } from '../api/openai'
 import { prisma } from '../db'
@@ -28,9 +29,14 @@ export const messagesRouter = router({
         },
       })
 
+      const historyMessages: ChatCompletionMessageParam[] = history.map((message) => ({
+        role: message.isChatbot ? 'assistant' : 'user',
+        content: message.content,
+      }))
+
       const openaiResponse = await getOpenAIResponse({
         content,
-        history,
+        history: historyMessages,
         context:
           "You are a life coach chat bot. The user will share their problems with you. You will help them find a solution, but you don't give them an answer, you will ask them questions to help them find a solution, you can make a suggestion too. You will be empathetic and understanding. If you have a good resources (blog post, youtube video, etc), you can share it with the user. Let's not do the bullet points because it overwhelms users, one by one answer is great. Let's also help the user grow their growth mindset rather than fixed mindset.Focus on solving the problem on the emotional side, not tactical such as solving the programming problem they have etc.",
       })
