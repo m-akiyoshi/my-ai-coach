@@ -21,7 +21,7 @@ export default function ChatPage() {
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
     if (!message.trim()) return
-    sendMessage.mutate({ journalEntryId, text: message })
+    sendMessage.mutate({ journalEntryId, content: message })
   }
 
   return (
