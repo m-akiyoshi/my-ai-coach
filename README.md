@@ -1,4 +1,4 @@
-## My AI coach chat bot app
+# My AI coach chat bot app
 
 ## Getting Started
 
